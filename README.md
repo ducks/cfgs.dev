@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# cfgs.dev
 
-## Getting Started
+Discover what tools developers use. Like prosettings.net, but for nerds.
 
-First, run the development server:
+Users login via GitHub or GitLab, point to their dotfiles repo, and we
+auto-detect their terminal, shell, editor, window manager, and more.
+
+## Features
+
+- OAuth login with GitHub and GitLab
+- Automatic dotfiles scanning and tool detection
+- Detects: WezTerm, Alacritty, Kitty, Zsh, Bash, Fish, Nushell, Neovim, Vim,
+  VSCode, Emacs, Hyprland, Sway, i3, AwesomeWM, tmux, Zellij, Starship, and more
+- Extracts details like fonts, colorschemes, and plugin managers
+- Profile pages showing detected tools by category
+- Browse page for discovering other setups
+
+## Setup
 
 ```bash
+# Install dependencies
+npm install
+
+# Copy environment template
+cp .env.example .env
+
+# Configure OAuth (see below)
+# Then start dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+AUTH_SECRET=           # openssl rand -base64 32
+GITHUB_CLIENT_ID=      # From GitHub OAuth app
+GITHUB_CLIENT_SECRET=  # From GitHub OAuth app
+GITLAB_CLIENT_ID=      # Optional
+GITLAB_CLIENT_SECRET=  # Optional
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a GitHub OAuth app at https://github.com/settings/developers with
+callback URL `http://localhost:3000/api/auth/callback/github` for local dev.
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+Tag a release to trigger the GitHub Actions build:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+git tag 20260124
+git push origin 20260124
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This creates a release with `cfgs-dev.tar.gz` containing the built app. Deploy
+by extracting and running `npm start`.
 
-## Deploy on Vercel
+## Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js 16 with App Router
+- Auth.js (NextAuth v5)
+- SQLite via better-sqlite3
+- Tailwind CSS
