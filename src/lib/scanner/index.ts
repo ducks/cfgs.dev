@@ -8,6 +8,18 @@ import { allDetectors } from "./detectors";
 
 const MAX_FILE_SIZE = 100 * 1024; // 100KB max per file
 const MAX_TOTAL_BYTES = 10 * 1024 * 1024; // 10MB total
+const CLONE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+
+export class ScanError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public statusCode: number = 500
+  ) {
+    super(message);
+    this.name = "ScanError";
+  }
+}
 
 // Recursively get all files in a directory
 async function getFiles(dir: string, base: string = ""): Promise<string[]> {
@@ -58,9 +70,31 @@ export async function scanRepo(ctx: ScanContext): Promise<ScanResult> {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "cfgs-scan-"));
 
   try {
-    // Clone the repository
-    const git: SimpleGit = simpleGit();
-    await git.clone(ctx.repoUrl, tempDir, ["--depth", "1"]);
+    // Clone the repository with timeout
+    const git: SimpleGit = simpleGit({ timeout: { block: CLONE_TIMEOUT_MS } });
+
+    try {
+      await git.clone(ctx.repoUrl, tempDir, ["--depth", "1"]);
+    } catch (cloneError: unknown) {
+      const errorMessage = cloneError instanceof Error ? cloneError.message : String(cloneError);
+
+      // Categorize git clone errors
+      if (errorMessage.includes("not found") || errorMessage.includes("404")) {
+        throw new ScanError("Repository not found", "REPO_NOT_FOUND", 404);
+      }
+      if (errorMessage.includes("timeout") || errorMessage.includes("timed out")) {
+        throw new ScanError("Repository clone timed out after 5 minutes", "CLONE_TIMEOUT", 408);
+      }
+      if (errorMessage.includes("authentication") || errorMessage.includes("credentials")) {
+        throw new ScanError("Repository is private or requires authentication", "AUTH_REQUIRED", 403);
+      }
+      if (errorMessage.includes("permission denied")) {
+        throw new ScanError("Permission denied accessing repository", "PERMISSION_DENIED", 403);
+      }
+
+      // Generic clone error
+      throw new ScanError(`Failed to clone repository: ${errorMessage}`, "CLONE_FAILED", 500);
+    }
 
     // Get all files
     const files = await getFiles(tempDir);

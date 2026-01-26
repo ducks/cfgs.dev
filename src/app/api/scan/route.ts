@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { scanRepo } from "@/lib/scanner";
+import { scanRepo, ScanError } from "@/lib/scanner";
 import {
   getUserByUsername,
   createScan,
@@ -9,12 +9,37 @@ import {
   updateUserDotfiles,
 } from "@/lib/db";
 import { randomUUID } from "crypto";
+import { scanQueue } from "@/lib/scanner/queue";
+import { rateLimiter } from "@/lib/rateLimit";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
 
   if (!session?.user?.username) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Rate limiting check
+  const rateLimitKey = `scan:${session.user.username}`;
+  const rateLimit = rateLimiter.check(rateLimitKey);
+
+  if (!rateLimit.allowed) {
+    const resetDate = new Date(rateLimit.resetAt);
+    return NextResponse.json(
+      {
+        error: "Rate limit exceeded",
+        message: "You have exceeded the maximum number of scans per hour (5)",
+        resetAt: resetDate.toISOString(),
+      },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": Math.ceil((rateLimit.resetAt - Date.now()) / 1000).toString(),
+          "X-RateLimit-Remaining": "0",
+          "X-RateLimit-Reset": resetDate.toISOString(),
+        },
+      }
+    );
   }
 
   const body = await request.json();
@@ -39,6 +64,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
+  // Check scan queue limits
+  const queueCheck = scanQueue.canStartScan(user.id);
+  if (!queueCheck.allowed) {
+    return NextResponse.json(
+      {
+        error: "Too many concurrent scans",
+        message: queueCheck.reason,
+      },
+      { status: 429 }
+    );
+  }
+
   // Create scan record
   const scanId = randomUUID();
   const scan = createScan({
@@ -49,6 +86,9 @@ export async function POST(request: NextRequest) {
 
   // Update scan status to scanning
   updateScan(scanId, { status: "scanning" });
+
+  // Track scan in queue
+  scanQueue.startScan(scanId, user.id);
 
   try {
     // Perform the scan
@@ -75,6 +115,9 @@ export async function POST(request: NextRequest) {
     // Update user's dotfiles URL
     updateUserDotfiles(user.id, repoUrl);
 
+    // Remove from queue
+    scanQueue.endScan(scanId);
+
     return NextResponse.json({
       success: true,
       scan: {
@@ -88,6 +131,26 @@ export async function POST(request: NextRequest) {
       warnings: result.warnings,
     });
   } catch (error) {
+    // Remove from queue on error
+    scanQueue.endScan(scanId);
+
+    // Handle categorized scan errors
+    if (error instanceof ScanError) {
+      updateScan(scanId, {
+        status: "failed",
+        error: error.message,
+      });
+
+      return NextResponse.json(
+        {
+          error: error.message,
+          code: error.code,
+        },
+        { status: error.statusCode }
+      );
+    }
+
+    // Handle generic errors
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
     updateScan(scanId, {
