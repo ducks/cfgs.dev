@@ -1,15 +1,28 @@
 import Database from "better-sqlite3";
 import path from "path";
+import fs from "fs";
 
-// Initialize database
-const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), "data", "cfgs.db");
-const db = new Database(dbPath);
+// Lazy-initialize database to avoid errors during build
+let db: Database.Database | null = null;
 
-// Enable WAL mode for better concurrent access
-db.pragma("journal_mode = WAL");
+function getDb(): Database.Database {
+  if (db) return db;
 
-// Create tables
-db.exec(`
+  const dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), "data", "cfgs.db");
+  const dbDir = path.dirname(dbPath);
+
+  // Ensure database directory exists
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
+
+  db = new Database(dbPath);
+
+  // Enable WAL mode for better concurrent access
+  db.pragma("journal_mode = WAL");
+
+  // Create tables
+  db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
@@ -54,6 +67,9 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_scans_user ON scans(user_id);
 `);
 
+  return db;
+}
+
 // Types
 export interface User {
   id: string;
@@ -95,7 +111,7 @@ export interface DetectionRecord {
 
 // User operations
 export function createUser(user: Omit<User, "created_at" | "updated_at">): User {
-  const stmt = db.prepare(`
+  const stmt = getDb().prepare(`
     INSERT INTO users (id, username, name, email, avatar_url, provider, provider_id, dotfiles_url)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(provider, provider_id) DO UPDATE SET
@@ -119,17 +135,17 @@ export function createUser(user: Omit<User, "created_at" | "updated_at">): User 
 }
 
 export function getUserById(id: string): User | undefined {
-  const stmt = db.prepare("SELECT * FROM users WHERE id = ?");
+  const stmt = getDb().prepare("SELECT * FROM users WHERE id = ?");
   return stmt.get(id) as User | undefined;
 }
 
 export function getUserByUsername(username: string): User | undefined {
-  const stmt = db.prepare("SELECT * FROM users WHERE username = ?");
+  const stmt = getDb().prepare("SELECT * FROM users WHERE username = ?");
   return stmt.get(username) as User | undefined;
 }
 
 export function updateUserDotfiles(userId: string, dotfilesUrl: string): void {
-  const stmt = db.prepare(`
+  const stmt = getDb().prepare(`
     UPDATE users SET dotfiles_url = ?, updated_at = datetime('now')
     WHERE id = ?
   `);
@@ -137,13 +153,13 @@ export function updateUserDotfiles(userId: string, dotfilesUrl: string): void {
 }
 
 export function getAllUsers(limit = 50): User[] {
-  const stmt = db.prepare("SELECT * FROM users ORDER BY created_at DESC LIMIT ?");
+  const stmt = getDb().prepare("SELECT * FROM users ORDER BY created_at DESC LIMIT ?");
   return stmt.all(limit) as User[];
 }
 
 // Scan operations
 export function createScan(scan: Omit<Scan, "created_at" | "completed_at" | "files_scanned" | "bytes_read" | "duration_ms" | "error" | "status">): Scan {
-  const stmt = db.prepare(`
+  const stmt = getDb().prepare(`
     INSERT INTO scans (id, user_id, repo_url)
     VALUES (?, ?, ?)
     RETURNING *
@@ -185,12 +201,12 @@ export function updateScan(
   if (fields.length === 0) return;
 
   values.push(scanId);
-  const stmt = db.prepare(`UPDATE scans SET ${fields.join(", ")} WHERE id = ?`);
+  const stmt = getDb().prepare(`UPDATE scans SET ${fields.join(", ")} WHERE id = ?`);
   stmt.run(...values);
 }
 
 export function getLatestScanForUser(userId: string): Scan | undefined {
-  const stmt = db.prepare(`
+  const stmt = getDb().prepare(`
     SELECT * FROM scans WHERE user_id = ?
     ORDER BY created_at DESC LIMIT 1
   `);
@@ -203,6 +219,7 @@ export function saveDetections(
   userId: string,
   detections: Array<{ tool_id: string; category: string; name: string; confidence: string; details?: Record<string, string> }>
 ): void {
+  const db = getDb();
   const stmt = db.prepare(`
     INSERT INTO detections (scan_id, user_id, tool_id, category, name, confidence, details)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -229,7 +246,7 @@ export function saveDetections(
 }
 
 export function getDetectionsForUser(userId: string): DetectionRecord[] {
-  const stmt = db.prepare(`
+  const stmt = getDb().prepare(`
     SELECT * FROM detections WHERE user_id = ?
     ORDER BY category, name
   `);
@@ -238,7 +255,7 @@ export function getDetectionsForUser(userId: string): DetectionRecord[] {
 
 // Stats
 export function getToolStats(): Array<{ tool_id: string; name: string; category: string; count: number }> {
-  const stmt = db.prepare(`
+  const stmt = getDb().prepare(`
     SELECT tool_id, name, category, COUNT(DISTINCT user_id) as count
     FROM detections
     GROUP BY tool_id
@@ -247,4 +264,5 @@ export function getToolStats(): Array<{ tool_id: string; name: string; category:
   return stmt.all() as Array<{ tool_id: string; name: string; category: string; count: number }>;
 }
 
-export default db;
+export { getDb };
+export default getDb;
