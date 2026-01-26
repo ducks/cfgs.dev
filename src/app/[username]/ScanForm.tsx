@@ -33,7 +33,25 @@ export function ScanForm({ currentUrl }: Props) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Scan failed");
+        // Handle specific error types with helpful messages
+        if (response.status === 429) {
+          if (data.message?.includes("concurrent")) {
+            throw new Error("You have too many scans running. Please wait for them to finish.");
+          }
+          const resetTime = data.resetAt ? new Date(data.resetAt).toLocaleTimeString() : "later";
+          throw new Error(`Rate limit exceeded. Try again at ${resetTime}.`);
+        }
+        if (response.status === 404) {
+          throw new Error("Repository not found. Make sure the URL is correct and the repo is public.");
+        }
+        if (response.status === 403) {
+          throw new Error("Cannot access repository. It may be private or require authentication.");
+        }
+        if (response.status === 408) {
+          throw new Error("Repository took too long to clone. Try a smaller repository.");
+        }
+
+        throw new Error(data.error || data.message || "Scan failed");
       }
 
       setResult({
