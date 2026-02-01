@@ -25,9 +25,8 @@ jobs:
       - name: Package release
         run: |
           tar -czf cfgs-dev.tar.gz \
-            .next \
-            node_modules \
-            package.json \
+            .next/standalone \
+            .next/static \
             public
 
       - name: Upload release
