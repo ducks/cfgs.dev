@@ -1,6 +1,6 @@
 {
   "name": "cfgs.dev",
-  "version": "20260125.0.2",
+  "version": "20260201.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
