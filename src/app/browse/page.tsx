@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { getAllUsers, getDetectionsForUser, getToolStats } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export default function BrowsePage() {
   const users = getAllUsers(50);
   const toolStats = getToolStats();
