@@ -24,10 +24,9 @@ jobs:
 
       - name: Package release
         run: |
-          tar -czf cfgs-dev.tar.gz \
-            .next/standalone \
-            .next/static \
-            public
+          cp -r .next/static .next/standalone/.next/static
+          cp -r public .next/standalone/public
+          tar -czf cfgs-dev.tar.gz -C .next/standalone .
 
       - name: Upload release
         uses: softprops/action-gh-release@v1
