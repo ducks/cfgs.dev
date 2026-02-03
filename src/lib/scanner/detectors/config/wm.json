@@ -62,5 +62,38 @@
     "name": "bspwm",
     "category": "wm",
     "patterns": ["**/.config/bspwm/bspwmrc", "**/bspwm/bspwmrc"]
+  },
+  {
+    "id": "wm.dwm",
+    "name": "dwm",
+    "category": "wm",
+    "patterns": ["**/dwm/config.h", "**/dwm/config.def.h"],
+    "extract": {
+      "font": "font\\[\\]\\s*=\\s*\"(.+?)\""
+    }
+  },
+  {
+    "id": "wm.qtile",
+    "name": "Qtile",
+    "category": "wm",
+    "patterns": ["**/.config/qtile/config.py", "**/qtile/config.py"]
+  },
+  {
+    "id": "wm.xmonad",
+    "name": "XMonad",
+    "category": "wm",
+    "patterns": ["**/.xmonad/xmonad.hs", "**/xmonad/xmonad.hs", "**/.config/xmonad/xmonad.hs"]
+  },
+  {
+    "id": "wm.river",
+    "name": "River",
+    "category": "wm",
+    "patterns": ["**/.config/river/init", "**/river/init"]
+  },
+  {
+    "id": "wm.niri",
+    "name": "Niri",
+    "category": "wm",
+    "patterns": ["**/.config/niri/config.kdl", "**/niri/config.kdl"]
   }
 ]

@@ -33,5 +33,34 @@
       "font": "font_family\\s+(.+)",
       "theme": "include\\s+.*?([^/]+)\\.conf"
     }
+  },
+  {
+    "id": "terminal.foot",
+    "name": "Foot",
+    "category": "terminal",
+    "patterns": ["**/.config/foot/foot.ini", "**/foot/foot.ini", "**/foot.ini"],
+    "extract": {
+      "font": "font\\s*=\\s*(.+)",
+      "shell": "shell\\s*=\\s*(.+)"
+    }
+  },
+  {
+    "id": "terminal.ghostty",
+    "name": "Ghostty",
+    "category": "terminal",
+    "patterns": ["**/.config/ghostty/config", "**/ghostty/config"],
+    "extract": {
+      "font": "font-family\\s*=\\s*(.+)",
+      "theme": "theme\\s*=\\s*(.+)"
+    }
+  },
+  {
+    "id": "terminal.st",
+    "name": "st",
+    "category": "terminal",
+    "patterns": ["**/st/config.h", "**/st/config.def.h"],
+    "extract": {
+      "font": "font\\s*=\\s*\"(.+?)\""
+    }
   }
 ]
