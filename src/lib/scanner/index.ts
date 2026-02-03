@@ -99,8 +99,8 @@ export async function scanRepo(ctx: ScanContext): Promise<ScanResult> {
     // Get all files
     const files = await getFiles(tempDir);
 
-    // Track which tools we've already detected to avoid duplicates
-    const detectedTools = new Set<string>();
+    // Track detections by tool ID to merge details from multiple files
+    const detectionsByTool = new Map<string, Detection>();
 
     for (const filePath of files) {
       // Find matching detectors for this file
@@ -135,16 +135,30 @@ export async function scanRepo(ctx: ScanContext): Promise<ScanResult> {
 
       // Run matching detectors
       for (const detector of matchingDetectors) {
-        // Skip if we already detected this tool
-        if (detectedTools.has(detector.id)) continue;
-
         const detection = detector.detect(fileEntry);
         if (detection) {
-          detections.push(detection);
-          detectedTools.add(detector.id);
+          const existing = detectionsByTool.get(detector.id);
+          if (existing) {
+            // Merge details from this file into existing detection
+            // Only add new keys, don't overwrite existing values
+            if (detection.details) {
+              existing.details = existing.details || {};
+              for (const [key, value] of Object.entries(detection.details)) {
+                if (!(key in existing.details)) {
+                  existing.details[key] = value;
+                }
+              }
+            }
+          } else {
+            // First detection for this tool
+            detectionsByTool.set(detector.id, detection);
+          }
         }
       }
     }
+
+    // Convert map to array
+    detections.push(...detectionsByTool.values());
   } finally {
     // Cleanup temp directory
     await fs.rm(tempDir, { recursive: true, force: true });
@@ -168,7 +182,7 @@ export async function scanLocalDir(dirPath: string): Promise<ScanResult> {
   let bytesRead = 0;
 
   const files = await getFiles(dirPath);
-  const detectedTools = new Set<string>();
+  const detectionsByTool = new Map<string, Detection>();
 
   for (const filePath of files) {
     const matchingDetectors = matchesAnyPattern(filePath, allDetectors);
@@ -199,15 +213,26 @@ export async function scanLocalDir(dirPath: string): Promise<ScanResult> {
     };
 
     for (const detector of matchingDetectors) {
-      if (detectedTools.has(detector.id)) continue;
-
       const detection = detector.detect(fileEntry);
       if (detection) {
-        detections.push(detection);
-        detectedTools.add(detector.id);
+        const existing = detectionsByTool.get(detector.id);
+        if (existing) {
+          if (detection.details) {
+            existing.details = existing.details || {};
+            for (const [key, value] of Object.entries(detection.details)) {
+              if (!(key in existing.details)) {
+                existing.details[key] = value;
+              }
+            }
+          }
+        } else {
+          detectionsByTool.set(detector.id, detection);
+        }
       }
     }
   }
+
+  detections.push(...detectionsByTool.values());
 
   return {
     tools: detections,
