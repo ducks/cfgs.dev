@@ -1,0 +1,86 @@
+[
+  {
+    "id": "editor.neovim",
+    "name": "Neovim",
+    "category": "editor",
+    "patterns": [
+      "**/.config/nvim/init.lua",
+      "**/.config/nvim/init.vim",
+      "**/nvim/init.lua",
+      "**/nvim/init.vim",
+      "**/nvim/lua/**/*.lua"
+    ],
+    "extract": {
+      "colorscheme": "colorscheme\\s+(\\w+)"
+    },
+    "contentFlags": {
+      "pluginManager": [
+        { "match": "lazy.nvim", "value": "lazy.nvim" },
+        { "match": "require.*['\"]lazy['\"]", "value": "lazy.nvim" },
+        { "match": "packer", "value": "packer" },
+        { "match": "vim-plug", "value": "vim-plug" },
+        { "match": "Plug '", "value": "vim-plug" }
+      ],
+      "lsp": [
+        { "match": "nvim-lspconfig", "value": "nvim-lspconfig" },
+        { "match": "lspconfig", "value": "nvim-lspconfig" }
+      ],
+      "treesitter": [
+        { "match": "nvim-treesitter", "value": "true" }
+      ],
+      "fuzzyFinder": [
+        { "match": "telescope", "value": "telescope" }
+      ]
+    }
+  },
+  {
+    "id": "editor.vim",
+    "name": "Vim",
+    "category": "editor",
+    "patterns": ["**/.vimrc", "**/vimrc", "**/.vim/**"],
+    "skipIf": ["nvim"],
+    "extract": {
+      "colorscheme": "colorscheme\\s+(\\w+)"
+    },
+    "contentFlags": {
+      "pluginManager": [
+        { "match": "vim-plug", "value": "vim-plug" },
+        { "match": "Plug '", "value": "vim-plug" },
+        { "match": "Vundle", "value": "Vundle" }
+      ]
+    }
+  },
+  {
+    "id": "editor.vscode",
+    "name": "VS Code",
+    "category": "editor",
+    "patterns": [
+      "**/.vscode/settings.json",
+      "**/.vscode/extensions.json",
+      "**/vscode/settings.json"
+    ],
+    "extractJson": {
+      "theme": "workbench.colorTheme",
+      "font": "editor.fontFamily",
+      "iconTheme": "workbench.iconTheme"
+    }
+  },
+  {
+    "id": "editor.emacs",
+    "name": "Emacs",
+    "category": "editor",
+    "patterns": [
+      "**/.emacs",
+      "**/.emacs.d/init.el",
+      "**/emacs/init.el",
+      "**/.doom.d/config.el"
+    ],
+    "contentFlags": {
+      "distribution": [
+        { "match": "doom", "value": "Doom Emacs", "pathMatch": true },
+        { "match": "doom!", "value": "Doom Emacs" },
+        { "match": "spacemacs", "value": "Spacemacs" }
+      ]
+    }
+  }
+]

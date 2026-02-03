@@ -1,0 +1,89 @@
+[
+  {
+    "id": "prompt.starship",
+    "name": "Starship",
+    "category": "prompt",
+    "patterns": ["**/.config/starship.toml", "**/starship/starship.toml", "**/starship.toml"]
+  },
+  {
+    "id": "multiplexer.tmux",
+    "name": "tmux",
+    "category": "multiplexer",
+    "patterns": ["**/.tmux.conf", "**/tmux/tmux.conf", "**/tmux.conf"],
+    "extract": {
+      "prefix": "set\\s+-g\\s+prefix\\s+(\\S+)"
+    },
+    "contentFlags": {
+      "pluginManager": [
+        { "match": "tpm", "value": "tpm" },
+        { "match": "tmux-plugins", "value": "tpm" }
+      ]
+    }
+  },
+  {
+    "id": "multiplexer.zellij",
+    "name": "Zellij",
+    "category": "multiplexer",
+    "patterns": ["**/.config/zellij/config.kdl", "**/zellij/config.kdl"]
+  },
+  {
+    "id": "bar.waybar",
+    "name": "Waybar",
+    "category": "bar",
+    "patterns": [
+      "**/.config/waybar/config",
+      "**/.config/waybar/config.jsonc",
+      "**/waybar/config",
+      "**/waybar/config.jsonc"
+    ],
+    "contentFlags": {
+      "position": [
+        { "match": "\"position\": \"top\"", "value": "top" },
+        { "match": "\"position\":\"top\"", "value": "top" },
+        { "match": "\"position\": \"bottom\"", "value": "bottom" }
+      ]
+    }
+  },
+  {
+    "id": "bar.polybar",
+    "name": "Polybar",
+    "category": "bar",
+    "patterns": [
+      "**/.config/polybar/config",
+      "**/.config/polybar/config.ini",
+      "**/polybar/config",
+      "**/polybar/config.ini"
+    ]
+  },
+  {
+    "id": "launcher.rofi",
+    "name": "Rofi",
+    "category": "launcher",
+    "patterns": ["**/.config/rofi/config.rasi", "**/rofi/config.rasi", "**/rofi/*.rasi"],
+    "extract": {
+      "theme": "@theme\\s+\"([^\"]+)\""
+    }
+  },
+  {
+    "id": "launcher.wofi",
+    "name": "Wofi",
+    "category": "launcher",
+    "patterns": ["**/.config/wofi/config", "**/.config/wofi/style.css", "**/wofi/config", "**/wofi/style.css"]
+  },
+  {
+    "id": "notifications.dunst",
+    "name": "Dunst",
+    "category": "notifications",
+    "patterns": ["**/.config/dunst/dunstrc", "**/dunst/dunstrc"]
+  },
+  {
+    "id": "tool.git",
+    "name": "Git",
+    "category": "vcs",
+    "patterns": ["**/.gitconfig", "**/git/config", "**/gitconfig"],
+    "extract": {
+      "editor": "editor\\s*=\\s*(.+)",
+      "defaultBranch": "defaultBranch\\s*=\\s*(.+)"
+    }
+  }
+]
