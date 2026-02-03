@@ -14,22 +14,120 @@
       "colorscheme": "colorscheme\\s+(\\w+)"
     },
     "contentFlags": {
+      "distribution": [
+        { "match": "LazyVim", "value": "LazyVim" },
+        { "match": "lazyvim.plugins", "value": "LazyVim" },
+        { "match": "AstroNvim", "value": "AstroNvim" },
+        { "match": "astronvim", "value": "AstroNvim" },
+        { "match": "NvChad", "value": "NvChad" },
+        { "match": "nvchad", "value": "NvChad" },
+        { "match": "LunarVim", "value": "LunarVim" },
+        { "match": "lvim", "value": "LunarVim" }
+      ],
       "pluginManager": [
         { "match": "lazy.nvim", "value": "lazy.nvim" },
         { "match": "require.*['\"]lazy['\"]", "value": "lazy.nvim" },
+        { "match": "folke/lazy.nvim", "value": "lazy.nvim" },
         { "match": "packer", "value": "packer" },
+        { "match": "wbthomason/packer.nvim", "value": "packer" },
         { "match": "vim-plug", "value": "vim-plug" },
         { "match": "Plug '", "value": "vim-plug" }
       ],
       "lsp": [
         { "match": "nvim-lspconfig", "value": "nvim-lspconfig" },
-        { "match": "lspconfig", "value": "nvim-lspconfig" }
+        { "match": "neovim/nvim-lspconfig", "value": "nvim-lspconfig" },
+        { "match": "coc.nvim", "value": "coc.nvim" },
+        { "match": "neoclide/coc.nvim", "value": "coc.nvim" }
       ],
-      "treesitter": [
-        { "match": "nvim-treesitter", "value": "true" }
+      "lspInstaller": [
+        { "match": "mason.nvim", "value": "mason" },
+        { "match": "williamboman/mason.nvim", "value": "mason" },
+        { "match": "mason-lspconfig", "value": "mason" },
+        { "match": "nvim-lsp-installer", "value": "nvim-lsp-installer" }
+      ],
+      "completion": [
+        { "match": "hrsh7th/nvim-cmp", "value": "nvim-cmp" },
+        { "match": "nvim-cmp", "value": "nvim-cmp" },
+        { "match": "coc.nvim", "value": "coc.nvim" },
+        { "match": "ms-jpq/coq_nvim", "value": "coq" },
+        { "match": "coq_nvim", "value": "coq" },
+        { "match": "Shougo/deoplete", "value": "deoplete" }
+      ],
+      "snippets": [
+        { "match": "L3MON4D3/LuaSnip", "value": "LuaSnip" },
+        { "match": "LuaSnip", "value": "LuaSnip" },
+        { "match": "SirVer/ultisnips", "value": "UltiSnips" },
+        { "match": "UltiSnips", "value": "UltiSnips" },
+        { "match": "hrsh7th/vim-vsnip", "value": "vsnip" }
+      ],
+      "statusline": [
+        { "match": "nvim-lualine/lualine", "value": "lualine" },
+        { "match": "lualine.nvim", "value": "lualine" },
+        { "match": "itchyny/lightline", "value": "lightline" },
+        { "match": "lightline.vim", "value": "lightline" },
+        { "match": "vim-airline", "value": "airline" },
+        { "match": "glepnir/galaxyline", "value": "galaxyline" },
+        { "match": "feline-nvim/feline", "value": "feline" }
+      ],
+      "fileExplorer": [
+        { "match": "nvim-tree/nvim-tree", "value": "nvim-tree" },
+        { "match": "nvim-tree.lua", "value": "nvim-tree" },
+        { "match": "nvim-neo-tree/neo-tree", "value": "neo-tree" },
+        { "match": "neo-tree.nvim", "value": "neo-tree" },
+        { "match": "stevearc/oil.nvim", "value": "oil.nvim" },
+        { "match": "oil.nvim", "value": "oil.nvim" },
+        { "match": "nvim-tree/nvim-web-devicons", "value": "devicons" }
+      ],
+      "git": [
+        { "match": "lewis6991/gitsigns", "value": "gitsigns" },
+        { "match": "gitsigns.nvim", "value": "gitsigns" },
+        { "match": "tpope/vim-fugitive", "value": "fugitive" },
+        { "match": "NeogitOrg/neogit", "value": "neogit" },
+        { "match": "kdheepak/lazygit.nvim", "value": "lazygit.nvim" },
+        { "match": "sindrets/diffview", "value": "diffview" }
       ],
       "fuzzyFinder": [
-        { "match": "telescope", "value": "telescope" }
+        { "match": "nvim-telescope/telescope", "value": "telescope" },
+        { "match": "telescope.nvim", "value": "telescope" },
+        { "match": "ibhagwan/fzf-lua", "value": "fzf-lua" },
+        { "match": "junegunn/fzf.vim", "value": "fzf.vim" },
+        { "match": "echasnovski/mini.pick", "value": "mini.pick" }
+      ],
+      "treesitter": [
+        { "match": "nvim-treesitter/nvim-treesitter", "value": "true" },
+        { "match": "nvim-treesitter", "value": "true" }
+      ],
+      "terminal": [
+        { "match": "akinsho/toggleterm", "value": "toggleterm" },
+        { "match": "toggleterm.nvim", "value": "toggleterm" },
+        { "match": "voldikss/vim-floaterm", "value": "floaterm" }
+      ],
+      "theme": [
+        { "match": "ellisonleao/gruvbox.nvim", "value": "gruvbox" },
+        { "match": "folke/tokyonight.nvim", "value": "tokyonight" },
+        { "match": "catppuccin/nvim", "value": "catppuccin" },
+        { "match": "rebelot/kanagawa.nvim", "value": "kanagawa" },
+        { "match": "rose-pine/neovim", "value": "rose-pine" },
+        { "match": "EdenEast/nightfox.nvim", "value": "nightfox" },
+        { "match": "sainnhe/everforest", "value": "everforest" },
+        { "match": "sainnhe/gruvbox-material", "value": "gruvbox-material" },
+        { "match": "navarasu/onedark.nvim", "value": "onedark" },
+        { "match": "projekt0n/github-nvim-theme", "value": "github" },
+        { "match": "dracula/vim", "value": "dracula" },
+        { "match": "morhetz/gruvbox", "value": "gruvbox" }
+      ],
+      "ai": [
+        { "match": "zbirenbaum/copilot.lua", "value": "copilot" },
+        { "match": "github/copilot.vim", "value": "copilot" },
+        { "match": "Exafunction/codeium", "value": "codeium" },
+        { "match": "David-Kunz/gen.nvim", "value": "gen.nvim" },
+        { "match": "jackMort/ChatGPT.nvim", "value": "ChatGPT.nvim" }
+      ],
+      "motion": [
+        { "match": "ggandor/leap.nvim", "value": "leap" },
+        { "match": "folke/flash.nvim", "value": "flash" },
+        { "match": "phaazon/hop.nvim", "value": "hop" },
+        { "match": "easymotion/vim-easymotion", "value": "easymotion" }
       ]
     }
   },
