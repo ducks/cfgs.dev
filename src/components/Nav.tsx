@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Nav() {
   const { data: session, status } = useSession();
@@ -20,6 +21,8 @@ export function Nav() {
           >
             Browse
           </Link>
+
+          <ThemeToggle />
 
           {status === "loading" ? (
             <div className="h-8 w-20 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
