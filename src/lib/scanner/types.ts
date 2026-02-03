@@ -10,7 +10,8 @@ export type ToolCategory =
   | "colorscheme"
   | "bar"
   | "launcher"
-  | "notifications";
+  | "notifications"
+  | "vcs";
 
 export type ToolId = string; // e.g., "terminal.wezterm", "shell.zsh"
 

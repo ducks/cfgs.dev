@@ -1,0 +1,37 @@
+[
+  {
+    "id": "terminal.wezterm",
+    "name": "WezTerm",
+    "category": "terminal",
+    "patterns": ["**/.wezterm.lua", "**/wezterm/*.lua", "**/wezterm.lua"],
+    "extract": {
+      "font": "font\\s*=\\s*wezterm\\.font\\s*['\"](.+?)['\"]",
+      "colorscheme": "color_scheme\\s*=\\s*['\"](.+?)['\"]"
+    }
+  },
+  {
+    "id": "terminal.alacritty",
+    "name": "Alacritty",
+    "category": "terminal",
+    "patterns": [
+      "**/.config/alacritty/alacritty.toml",
+      "**/.config/alacritty/alacritty.yml",
+      "**/alacritty/alacritty.toml",
+      "**/alacritty.toml"
+    ],
+    "extractToml": {
+      "font": "font.normal.family",
+      "background": "colors.primary.background"
+    }
+  },
+  {
+    "id": "terminal.kitty",
+    "name": "Kitty",
+    "category": "terminal",
+    "patterns": ["**/.config/kitty/kitty.conf", "**/kitty/kitty.conf", "**/kitty.conf"],
+    "extract": {
+      "font": "font_family\\s+(.+)",
+      "theme": "include\\s+.*?([^/]+)\\.conf"
+    }
+  }
+]

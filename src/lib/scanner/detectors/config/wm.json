@@ -1,0 +1,66 @@
+[
+  {
+    "id": "wm.hyprland",
+    "name": "Hyprland",
+    "category": "wm",
+    "patterns": ["**/.config/hypr/hyprland.conf", "**/hypr/hyprland.conf", "**/hypr/*.conf"],
+    "extract": {
+      "terminal": "\\$terminal\\s*=\\s*(.+)",
+      "launcher": "\\$launcher\\s*=\\s*(.+)"
+    },
+    "contentFlags": {
+      "bar": [
+        { "match": "waybar", "value": "waybar" },
+        { "match": "polybar", "value": "polybar" }
+      ],
+      "notifications": [
+        { "match": "dunst", "value": "dunst" },
+        { "match": "mako", "value": "mako" }
+      ]
+    }
+  },
+  {
+    "id": "wm.sway",
+    "name": "Sway",
+    "category": "wm",
+    "patterns": ["**/.config/sway/config", "**/sway/config"],
+    "contentFlags": {
+      "bar": [
+        { "match": "waybar", "value": "waybar" },
+        { "match": "swaybar", "value": "swaybar" }
+      ]
+    }
+  },
+  {
+    "id": "wm.i3",
+    "name": "i3",
+    "category": "wm",
+    "patterns": ["**/.config/i3/config", "**/.i3/config", "**/i3/config"],
+    "contentFlags": {
+      "bar": [
+        { "match": "polybar", "value": "polybar" },
+        { "match": "i3bar", "value": "i3bar" },
+        { "match": "bar {", "value": "i3bar" }
+      ],
+      "variant": [
+        { "match": "gaps inner", "value": "i3-gaps" },
+        { "match": "gaps outer", "value": "i3-gaps" }
+      ]
+    }
+  },
+  {
+    "id": "wm.awesome",
+    "name": "AwesomeWM",
+    "category": "wm",
+    "patterns": ["**/.config/awesome/rc.lua", "**/awesome/rc.lua", "**/awesome/*.lua"],
+    "extract": {
+      "theme": "beautiful\\.init.*?([^/]+)/theme"
+    }
+  },
+  {
+    "id": "wm.bspwm",
+    "name": "bspwm",
+    "category": "wm",
+    "patterns": ["**/.config/bspwm/bspwmrc", "**/bspwm/bspwmrc"]
+  }
+]

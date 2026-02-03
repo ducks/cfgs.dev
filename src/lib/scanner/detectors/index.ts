@@ -1,21 +1,11 @@
-import { Detector } from "../types";
-import { terminalDetectors } from "./terminals";
-import { shellDetectors } from "./shells";
-import { editorDetectors } from "./editors";
-import { wmDetectors } from "./wm";
-import { miscDetectors } from "./misc";
+// Config-based detector system
+// Detectors are defined in ./config/*.json and loaded by loader.ts
 
-// All detectors in priority order
-export const allDetectors: Detector[] = [
-  ...terminalDetectors,
-  ...shellDetectors,
-  ...editorDetectors,
-  ...wmDetectors,
-  ...miscDetectors,
-];
-
-export * from "./terminals";
-export * from "./shells";
-export * from "./editors";
-export * from "./wm";
-export * from "./misc";
+export {
+  allDetectors,
+  terminalDetectors,
+  shellDetectors,
+  editorDetectors,
+  wmDetectors,
+  miscDetectors,
+} from "./loader";

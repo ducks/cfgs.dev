@@ -1,0 +1,60 @@
+[
+  {
+    "id": "shell.zsh",
+    "name": "Zsh",
+    "category": "shell",
+    "patterns": ["**/.zshrc", "**/.zprofile", "**/.zshenv", "**/zshrc", "**/zsh/.zshrc"],
+    "extract": {
+      "theme": "ZSH_THEME\\s*=\\s*['\"](.+?)['\"]"
+    },
+    "contentFlags": {
+      "framework": [
+        { "match": "oh-my-zsh", "value": "oh-my-zsh" },
+        { "match": "ZSH_THEME", "value": "oh-my-zsh" },
+        { "match": "zinit", "value": "zinit" },
+        { "match": "zplugin", "value": "zinit" }
+      ],
+      "prompt": [
+        { "match": "starship init", "value": "starship" },
+        { "match": "powerlevel10k", "value": "powerlevel10k" },
+        { "match": "p10k", "value": "powerlevel10k" }
+      ]
+    }
+  },
+  {
+    "id": "shell.bash",
+    "name": "Bash",
+    "category": "shell",
+    "patterns": ["**/.bashrc", "**/.bash_profile", "**/.profile", "**/bashrc"],
+    "contentFlags": {
+      "prompt": [
+        { "match": "starship init", "value": "starship" }
+      ]
+    }
+  },
+  {
+    "id": "shell.fish",
+    "name": "Fish",
+    "category": "shell",
+    "patterns": ["**/.config/fish/config.fish", "**/fish/config.fish"],
+    "contentFlags": {
+      "pluginManager": [
+        { "match": "fisher", "value": "fisher" }
+      ],
+      "prompt": [
+        { "match": "starship init", "value": "starship" }
+      ]
+    }
+  },
+  {
+    "id": "shell.nushell",
+    "name": "Nushell",
+    "category": "shell",
+    "patterns": ["**/.config/nushell/config.nu", "**/nushell/config.nu", "**/nushell/*.nu"],
+    "contentFlags": {
+      "prompt": [
+        { "match": "starship", "value": "starship" }
+      ]
+    }
+  }
+]
