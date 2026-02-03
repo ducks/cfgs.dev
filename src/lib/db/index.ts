@@ -264,5 +264,44 @@ export function getToolStats(): Array<{ tool_id: string; name: string; category:
   return stmt.all() as Array<{ tool_id: string; name: string; category: string; count: number }>;
 }
 
+export function getUsersByTool(toolId: string): Array<User & { details: string | null }> {
+  const stmt = getDb().prepare(`
+    SELECT u.*, d.details
+    FROM users u
+    JOIN detections d ON d.user_id = u.id
+    WHERE d.tool_id = ?
+    ORDER BY u.username
+  `);
+  return stmt.all(toolId) as Array<User & { details: string | null }>;
+}
+
+export function getToolInfo(toolId: string): { tool_id: string; name: string; category: string } | undefined {
+  const stmt = getDb().prepare(`
+    SELECT tool_id, name, category FROM detections WHERE tool_id = ? LIMIT 1
+  `);
+  return stmt.get(toolId) as { tool_id: string; name: string; category: string } | undefined;
+}
+
+export function getCategories(): Array<{ category: string; count: number }> {
+  const stmt = getDb().prepare(`
+    SELECT category, COUNT(DISTINCT tool_id) as count
+    FROM detections
+    GROUP BY category
+    ORDER BY category
+  `);
+  return stmt.all() as Array<{ category: string; count: number }>;
+}
+
+export function getToolsByCategory(category: string): Array<{ tool_id: string; name: string; count: number }> {
+  const stmt = getDb().prepare(`
+    SELECT tool_id, name, COUNT(DISTINCT user_id) as count
+    FROM detections
+    WHERE category = ?
+    GROUP BY tool_id
+    ORDER BY count DESC
+  `);
+  return stmt.all(category) as Array<{ tool_id: string; name: string; count: number }>;
+}
+
 export { getDb };
 export default getDb;
