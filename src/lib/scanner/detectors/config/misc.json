@@ -85,5 +85,116 @@
       "editor": "editor\\s*=\\s*(.+)",
       "defaultBranch": "defaultBranch\\s*=\\s*(.+)"
     }
+  },
+  {
+    "id": "bar.eww",
+    "name": "Eww",
+    "category": "bar",
+    "patterns": ["**/.config/eww/eww.yuck", "**/eww/eww.yuck", "**/eww/*.yuck"]
+  },
+  {
+    "id": "bar.ags",
+    "name": "AGS",
+    "category": "bar",
+    "patterns": ["**/.config/ags/config.js", "**/ags/config.js", "**/ags/*.js"]
+  },
+  {
+    "id": "launcher.dmenu",
+    "name": "dmenu",
+    "category": "launcher",
+    "patterns": ["**/dmenu/config.h", "**/dmenu/config.def.h"]
+  },
+  {
+    "id": "launcher.fuzzel",
+    "name": "Fuzzel",
+    "category": "launcher",
+    "patterns": ["**/.config/fuzzel/fuzzel.ini", "**/fuzzel/fuzzel.ini"]
+  },
+  {
+    "id": "launcher.tofi",
+    "name": "Tofi",
+    "category": "launcher",
+    "patterns": ["**/.config/tofi/config", "**/tofi/config"]
+  },
+  {
+    "id": "compositor.picom",
+    "name": "Picom",
+    "category": "compositor",
+    "patterns": ["**/.config/picom/picom.conf", "**/picom/picom.conf", "**/picom.conf"]
+  },
+  {
+    "id": "filemanager.ranger",
+    "name": "Ranger",
+    "category": "filemanager",
+    "patterns": ["**/.config/ranger/rc.conf", "**/ranger/rc.conf"]
+  },
+  {
+    "id": "filemanager.lf",
+    "name": "lf",
+    "category": "filemanager",
+    "patterns": ["**/.config/lf/lfrc", "**/lf/lfrc"]
+  },
+  {
+    "id": "filemanager.yazi",
+    "name": "Yazi",
+    "category": "filemanager",
+    "patterns": ["**/.config/yazi/yazi.toml", "**/yazi/yazi.toml"],
+    "extractToml": {
+      "theme": "theme"
+    }
+  },
+  {
+    "id": "tool.lazygit",
+    "name": "Lazygit",
+    "category": "tool",
+    "patterns": ["**/.config/lazygit/config.yml", "**/lazygit/config.yml"]
+  },
+  {
+    "id": "tool.atuin",
+    "name": "Atuin",
+    "category": "tool",
+    "patterns": ["**/.config/atuin/config.toml", "**/atuin/config.toml"]
+  },
+  {
+    "id": "tool.direnv",
+    "name": "direnv",
+    "category": "tool",
+    "patterns": ["**/.direnvrc", "**/direnv/direnvrc"]
+  },
+  {
+    "id": "tool.zoxide",
+    "name": "Zoxide",
+    "category": "tool",
+    "patterns": ["**/.config/zoxide/config.toml", "**/zoxide.toml"]
+  },
+  {
+    "id": "tool.fzf",
+    "name": "fzf",
+    "category": "tool",
+    "patterns": ["**/.fzf.bash", "**/.fzf.zsh", "**/fzf/*.zsh"]
+  },
+  {
+    "id": "notifications.mako",
+    "name": "Mako",
+    "category": "notifications",
+    "patterns": ["**/.config/mako/config", "**/mako/config"]
+  },
+  {
+    "id": "tool.dotter",
+    "name": "Dotter",
+    "category": "tool",
+    "patterns": ["**/.dotter/global.toml", "**/dotter/global.toml", "**/.dotter.toml"]
+  },
+  {
+    "id": "tool.chezmoi",
+    "name": "Chezmoi",
+    "category": "tool",
+    "patterns": ["**/.chezmoi.toml", "**/.chezmoiroot", "**/chezmoi/*.toml"]
+  },
+  {
+    "id": "tool.stow",
+    "name": "GNU Stow",
+    "category": "tool",
+    "patterns": ["**/.stow-local-ignore", "**/.stowrc"]
   }
 ]

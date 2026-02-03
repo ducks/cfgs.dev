@@ -82,5 +82,33 @@
         { "match": "spacemacs", "value": "Spacemacs" }
       ]
     }
+  },
+  {
+    "id": "editor.helix",
+    "name": "Helix",
+    "category": "editor",
+    "patterns": ["**/.config/helix/config.toml", "**/helix/config.toml"],
+    "extractToml": {
+      "theme": "theme"
+    }
+  },
+  {
+    "id": "editor.zed",
+    "name": "Zed",
+    "category": "editor",
+    "patterns": ["**/.config/zed/settings.json", "**/zed/settings.json"],
+    "extractJson": {
+      "theme": "theme",
+      "font": "buffer_font_family"
+    }
+  },
+  {
+    "id": "editor.kakoune",
+    "name": "Kakoune",
+    "category": "editor",
+    "patterns": ["**/.config/kak/kakrc", "**/kak/kakrc", "**/kakoune/kakrc"],
+    "extract": {
+      "colorscheme": "colorscheme\\s+(\\w+)"
+    }
   }
 ]

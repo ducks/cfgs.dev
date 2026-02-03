@@ -11,7 +11,10 @@ export type ToolCategory =
   | "bar"
   | "launcher"
   | "notifications"
-  | "vcs";
+  | "vcs"
+  | "compositor"
+  | "filemanager"
+  | "tool";
 
 export type ToolId = string; // e.g., "terminal.wezterm", "shell.zsh"
 
