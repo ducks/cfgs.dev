@@ -77,7 +77,7 @@
     "patterns": ["**/.config/dunst/dunstrc", "**/dunst/dunstrc"]
   },
   {
-    "id": "tool.git",
+    "id": "vcs.git",
     "name": "Git",
     "category": "vcs",
     "patterns": ["**/.gitconfig", "**/git/config", "**/gitconfig"],
