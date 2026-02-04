@@ -196,5 +196,23 @@
     "name": "GNU Stow",
     "category": "tool",
     "patterns": ["**/.stow-local-ignore", "**/.stowrc"]
+  },
+  {
+    "id": "hyprland.hyprlock",
+    "name": "Hyprlock",
+    "category": "lockscreen",
+    "patterns": ["**/.config/hypr/hyprlock.conf", "**/hypr/hyprlock.conf", "**/hyprlock.conf"]
+  },
+  {
+    "id": "hyprland.hypridle",
+    "name": "Hypridle",
+    "category": "idle",
+    "patterns": ["**/.config/hypr/hypridle.conf", "**/hypr/hypridle.conf", "**/hypridle.conf"]
+  },
+  {
+    "id": "hyprland.hyprpaper",
+    "name": "Hyprpaper",
+    "category": "wallpaper",
+    "patterns": ["**/.config/hypr/hyprpaper.conf", "**/hypr/hyprpaper.conf", "**/hyprpaper.conf"]
   }
 ]
