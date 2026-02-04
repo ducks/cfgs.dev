@@ -27,6 +27,12 @@ export function Nav() {
           >
             Browse
           </Link>
+          <Link
+            href="/search"
+            className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+          >
+            Search
+          </Link>
 
           <ThemeToggle />
 

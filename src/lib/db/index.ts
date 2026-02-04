@@ -337,5 +337,66 @@ export function getToolsByCategory(category: string): Array<{ tool_id: string; n
   return stmt.all(category) as Array<{ tool_id: string; name: string; count: number }>;
 }
 
+// Search operations
+export function getAllTools(): Array<{ tool_id: string; name: string; category: string }> {
+  const stmt = getDb().prepare(`
+    SELECT DISTINCT tool_id, name, category
+    FROM detections
+    ORDER BY name
+  `);
+  return stmt.all() as Array<{ tool_id: string; name: string; category: string }>;
+}
+
+export function searchUsersByUsername(query: string, limit = 20): User[] {
+  const stmt = getDb().prepare(`
+    SELECT * FROM users
+    WHERE username LIKE ?
+    ORDER BY
+      CASE WHEN username = ? THEN 0
+           WHEN username LIKE ? THEN 1
+           ELSE 2 END,
+      username
+    LIMIT ?
+  `);
+  const pattern = `%${query}%`;
+  const startsWithPattern = `${query}%`;
+  return stmt.all(pattern, query, startsWithPattern, limit) as User[];
+}
+
+export function getUsersByMultipleTools(toolIds: string[], limit = 50): Array<User & { matchedTools: number }> {
+  if (toolIds.length === 0) return [];
+
+  const placeholders = toolIds.map(() => '?').join(', ');
+  const stmt = getDb().prepare(`
+    SELECT u.*, COUNT(DISTINCT d.tool_id) as matchedTools
+    FROM users u
+    JOIN detections d ON d.user_id = u.id
+    WHERE d.tool_id IN (${placeholders})
+    GROUP BY u.id
+    HAVING COUNT(DISTINCT d.tool_id) = ?
+    ORDER BY u.username
+    LIMIT ?
+  `);
+  return stmt.all(...toolIds, toolIds.length, limit) as Array<User & { matchedTools: number }>;
+}
+
+export function searchTools(query: string, limit = 20): Array<{ tool_id: string; name: string; category: string; count: number }> {
+  const stmt = getDb().prepare(`
+    SELECT tool_id, name, category, COUNT(DISTINCT user_id) as count
+    FROM detections
+    WHERE name LIKE ? OR tool_id LIKE ?
+    GROUP BY tool_id
+    ORDER BY
+      CASE WHEN LOWER(name) = LOWER(?) THEN 0
+           WHEN LOWER(name) LIKE LOWER(?) THEN 1
+           ELSE 2 END,
+      count DESC
+    LIMIT ?
+  `);
+  const pattern = `%${query}%`;
+  const startsWithPattern = `${query}%`;
+  return stmt.all(pattern, pattern, query, startsWithPattern, limit) as Array<{ tool_id: string; name: string; category: string; count: number }>;
+}
+
 export { getDb };
 export default getDb;
