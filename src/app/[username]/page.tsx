@@ -63,7 +63,7 @@ export default async function ProfilePage({ params }: Props) {
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold">
             {user.username}
-            {user.claimed && (
+            {!!user.claimed && (
               <span title="Verified owner" className="text-blue-500">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                   <path
