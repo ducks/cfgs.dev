@@ -54,6 +54,13 @@ git push origin 20260124
 This creates a release with `cfgs-dev.tar.gz` containing the built app. Deploy
 by extracting and running `npm start`.
 
+## TODO
+
+- [ ] Search (users, tools, or both)
+- [x] Link to user's dotfiles repo on their profile page
+- [ ] Multi-tool filtering (show users with both Neovim AND Kitty)
+- [ ] Similar setups (find users with similar tool combinations)
+
 ## Stack
 
 - Next.js 16 with App Router
