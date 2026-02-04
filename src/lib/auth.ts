@@ -30,7 +30,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         username = (profile as { username?: string }).username || user.email?.split("@")[0] || providerId;
       }
 
-      // Create or update user in our database
+      // Create or update user in our database (claimed = true for OAuth login)
       createUser({
         id: randomUUID(),
         username,
@@ -40,6 +40,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         provider,
         provider_id: providerId,
         dotfiles_url: null,
+        claimed: true,
       });
 
       return true;
