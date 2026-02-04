@@ -32,6 +32,7 @@ function getDb(): Database.Database {
     provider TEXT NOT NULL,
     provider_id TEXT NOT NULL,
     dotfiles_url TEXT,
+    claimed INTEGER DEFAULT 0,
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now')),
     UNIQUE(provider, provider_id)
@@ -67,6 +68,12 @@ function getDb(): Database.Database {
   CREATE INDEX IF NOT EXISTS idx_scans_user ON scans(user_id);
 `);
 
+  // Migration: add claimed column if it doesn't exist
+  const columns = db.prepare("PRAGMA table_info(users)").all() as Array<{ name: string }>;
+  if (!columns.some(c => c.name === "claimed")) {
+    db.exec("ALTER TABLE users ADD COLUMN claimed INTEGER DEFAULT 0");
+  }
+
   return db;
 }
 
@@ -80,6 +87,7 @@ export interface User {
   provider: string;
   provider_id: string;
   dotfiles_url: string | null;
+  claimed: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -112,13 +120,14 @@ export interface DetectionRecord {
 // User operations
 export function createUser(user: Omit<User, "created_at" | "updated_at">): User {
   const stmt = getDb().prepare(`
-    INSERT INTO users (id, username, name, email, avatar_url, provider, provider_id, dotfiles_url)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO users (id, username, name, email, avatar_url, provider, provider_id, dotfiles_url, claimed)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(provider, provider_id) DO UPDATE SET
       username = excluded.username,
       name = excluded.name,
       email = excluded.email,
       avatar_url = excluded.avatar_url,
+      claimed = CASE WHEN excluded.claimed = 1 THEN 1 ELSE users.claimed END,
       updated_at = datetime('now')
     RETURNING *
   `);
@@ -130,8 +139,33 @@ export function createUser(user: Omit<User, "created_at" | "updated_at">): User 
     user.avatar_url,
     user.provider,
     user.provider_id,
-    user.dotfiles_url
+    user.dotfiles_url,
+    user.claimed ? 1 : 0
   ) as User;
+}
+
+// Create or get unclaimed user from username
+export function getOrCreateUnclaimedUser(
+  username: string,
+  provider: string,
+  providerId: string,
+  avatarUrl?: string,
+  name?: string
+): User {
+  // Check if user already exists
+  const existing = getUserByUsername(username);
+  if (existing) {
+    return existing;
+  }
+
+  // Create unclaimed user
+  const id = crypto.randomUUID();
+  const stmt = getDb().prepare(`
+    INSERT INTO users (id, username, name, avatar_url, provider, provider_id, claimed)
+    VALUES (?, ?, ?, ?, ?, ?, 0)
+    RETURNING *
+  `);
+  return stmt.get(id, username, name || null, avatarUrl || null, provider, providerId) as User;
 }
 
 export function getUserById(id: string): User | undefined {

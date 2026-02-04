@@ -2,12 +2,13 @@
 
 Discover what tools developers use. Like prosettings.net, but for nerds.
 
-Users login via GitHub or GitLab, point to their dotfiles repo, and we
-auto-detect their terminal, shell, editor, window manager, and more.
+Submit any public dotfiles repo and we auto-detect the terminal, shell, editor,
+window manager, and more. No login required.
 
 ## Features
 
-- OAuth login with GitHub and GitLab
+- Public submission - anyone can add a dotfiles repo without logging in
+- OAuth login with GitHub to claim your profile (shows verified checkmark)
 - Automatic dotfiles scanning and tool detection
 - Detects: WezTerm, Alacritty, Kitty, Zsh, Bash, Fish, Nushell, Neovim, Vim,
   VSCode, Emacs, Hyprland, Sway, i3, AwesomeWM, tmux, Zellij, Starship, and more

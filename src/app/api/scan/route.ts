@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { scanRepo, ScanError } from "@/lib/scanner";
 import {
   getUserByUsername,
+  getOrCreateUnclaimedUser,
   createScan,
   updateScan,
   saveDetections,
@@ -12,15 +13,63 @@ import { randomUUID } from "crypto";
 import { scanQueue } from "@/lib/scanner/queue";
 import { rateLimiter } from "@/lib/rateLimit";
 
+// Extract username and provider from repo URL
+function parseRepoUrl(repoUrl: string): { username: string; provider: string; repo: string } | null {
+  const match = repoUrl.match(/^https?:\/\/(github\.com|gitlab\.com|codeberg\.org)\/([\w-]+)\/([\w.-]+)/);
+  if (!match) return null;
+
+  const [, host, username, repo] = match;
+  const provider = host === "github.com" ? "github" : host === "gitlab.com" ? "gitlab" : "codeberg";
+  return { username, provider, repo };
+}
+
+// Fetch user info from GitHub API
+async function fetchGitHubUser(username: string): Promise<{ id: string; avatar_url: string; name: string | null } | null> {
+  try {
+    const res = await fetch(`https://api.github.com/users/${username}`, {
+      headers: { "User-Agent": "cfgs.dev" },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return { id: String(data.id), avatar_url: data.avatar_url, name: data.name };
+  } catch {
+    return null;
+  }
+}
+
+// Fetch user info from GitLab API
+async function fetchGitLabUser(username: string): Promise<{ id: string; avatar_url: string; name: string | null } | null> {
+  try {
+    const res = await fetch(`https://gitlab.com/api/v4/users?username=${username}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.length) return null;
+    return { id: String(data[0].id), avatar_url: data[0].avatar_url, name: data[0].name };
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   const session = await auth();
+  const body = await request.json();
+  const { repoUrl } = body;
 
-  if (!session?.user?.username) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!repoUrl) {
+    return NextResponse.json({ error: "repoUrl is required" }, { status: 400 });
   }
 
-  // Rate limiting check
-  const rateLimitKey = `scan:${session.user.username}`;
+  // Validate and parse URL
+  const parsed = parseRepoUrl(repoUrl);
+  if (!parsed) {
+    return NextResponse.json(
+      { error: "Invalid repository URL. Must be a GitHub, GitLab, or Codeberg repo." },
+      { status: 400 }
+    );
+  }
+
+  // Rate limiting - use session username if logged in, otherwise repo username
+  const rateLimitKey = `scan:${session?.user?.username || parsed.username}`;
   const rateLimit = rateLimiter.check(rateLimitKey);
 
   if (!rateLimit.allowed) {
@@ -42,26 +91,34 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const body = await request.json();
-  const { repoUrl } = body;
+  // Get or create user
+  let user = getUserByUsername(parsed.username);
 
-  if (!repoUrl) {
-    return NextResponse.json({ error: "repoUrl is required" }, { status: 400 });
-  }
-
-  // Validate URL format
-  const urlPattern = /^https?:\/\/(github\.com|gitlab\.com|codeberg\.org)\/[\w-]+\/[\w.-]+/;
-  if (!urlPattern.test(repoUrl)) {
-    return NextResponse.json(
-      { error: "Invalid repository URL. Must be a GitHub, GitLab, or Codeberg repo." },
-      { status: 400 }
-    );
-  }
-
-  // Get user from database
-  const user = getUserByUsername(session.user.username);
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    // Fetch user info from provider API
+    let providerUser: { id: string; avatar_url: string; name: string | null } | null = null;
+
+    if (parsed.provider === "github") {
+      providerUser = await fetchGitHubUser(parsed.username);
+    } else if (parsed.provider === "gitlab") {
+      providerUser = await fetchGitLabUser(parsed.username);
+    }
+
+    if (!providerUser) {
+      return NextResponse.json(
+        { error: `Could not find user "${parsed.username}" on ${parsed.provider}` },
+        { status: 404 }
+      );
+    }
+
+    // Create unclaimed user
+    user = getOrCreateUnclaimedUser(
+      parsed.username,
+      parsed.provider,
+      providerUser.id,
+      providerUser.avatar_url,
+      providerUser.name || undefined
+    );
   }
 
   // Check scan queue limits
@@ -120,6 +177,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      username: user.username,
       scan: {
         id: scanId,
         status: "completed",
