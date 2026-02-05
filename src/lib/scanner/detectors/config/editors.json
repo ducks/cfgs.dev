@@ -10,9 +10,6 @@
       "**/nvim/init.vim",
       "**/nvim/lua/**/*.lua"
     ],
-    "extract": {
-      "colorscheme": "colorscheme\\s+(\\w+)"
-    },
     "contentFlags": {
       "distribution": [
         { "match": "LazyVim", "value": "LazyVim" },
