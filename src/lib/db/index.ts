@@ -398,5 +398,47 @@ export function searchTools(query: string, limit = 20): Array<{ tool_id: string;
   return stmt.all(pattern, pattern, query, startsWithPattern, limit) as Array<{ tool_id: string; name: string; category: string; count: number }>;
 }
 
+// Find users with similar tool setups
+export function getSimilarUsers(userId: string, limit = 5): Array<User & { sharedTools: number; totalUserTools: number; totalOtherTools: number; similarity: number }> {
+  const stmt = getDb().prepare(`
+    WITH user_tools AS (
+      SELECT tool_id FROM detections WHERE user_id = ?
+    ),
+    user_tool_count AS (
+      SELECT COUNT(*) as count FROM user_tools
+    )
+    SELECT
+      u.*,
+      COUNT(DISTINCT d.tool_id) as sharedTools,
+      (SELECT count FROM user_tool_count) as totalUserTools,
+      (SELECT COUNT(DISTINCT tool_id) FROM detections WHERE user_id = u.id) as totalOtherTools,
+      CAST(COUNT(DISTINCT d.tool_id) AS REAL) /
+        ((SELECT count FROM user_tool_count) +
+         (SELECT COUNT(DISTINCT tool_id) FROM detections WHERE user_id = u.id) -
+         COUNT(DISTINCT d.tool_id)) as similarity
+    FROM users u
+    JOIN detections d ON d.user_id = u.id
+    WHERE d.tool_id IN (SELECT tool_id FROM user_tools)
+      AND u.id != ?
+    GROUP BY u.id
+    HAVING sharedTools > 0
+    ORDER BY similarity DESC, sharedTools DESC
+    LIMIT ?
+  `);
+  return stmt.all(userId, userId, limit) as Array<User & { sharedTools: number; totalUserTools: number; totalOtherTools: number; similarity: number }>;
+}
+
+// Get shared tools between two users
+export function getSharedTools(userId1: string, userId2: string): Array<{ tool_id: string; name: string; category: string }> {
+  const stmt = getDb().prepare(`
+    SELECT DISTINCT d1.tool_id, d1.name, d1.category
+    FROM detections d1
+    JOIN detections d2 ON d1.tool_id = d2.tool_id
+    WHERE d1.user_id = ? AND d2.user_id = ?
+    ORDER BY d1.category, d1.name
+  `);
+  return stmt.all(userId1, userId2) as Array<{ tool_id: string; name: string; category: string }>;
+}
+
 export { getDb };
 export default getDb;
