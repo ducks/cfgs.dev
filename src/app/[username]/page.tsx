@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { getUserByUsername, getDetectionsForUser, getLatestScanForUser } from "@/lib/db";
+import { getUserByUsername, getDetectionsForUser, getLatestScanForUser, getSimilarUsers, getSharedTools } from "@/lib/db";
 import { ScanForm } from "./ScanForm";
 
 interface Props {
@@ -19,6 +20,7 @@ export default async function ProfilePage({ params }: Props) {
   const isOwner = session?.user?.username === username;
   const detections = getDetectionsForUser(user.id);
   const latestScan = getLatestScanForUser(user.id);
+  const similarUsers = detections.length > 0 ? getSimilarUsers(user.id, 5) : [];
 
   // Group detections by category
   const byCategory = new Map<string, typeof detections>();
@@ -177,6 +179,64 @@ export default async function ProfilePage({ params }: Props) {
               ? "No tools detected yet. Scan your dotfiles to get started."
               : "This user hasn't scanned their dotfiles yet."}
           </p>
+        </div>
+      )}
+
+      {/* Similar users */}
+      {similarUsers.length > 0 && (
+        <div className="mt-12">
+          <h2 className="text-xl font-semibold">Similar Users</h2>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Users with similar tool setups
+          </p>
+          <div className="mt-4 space-y-4">
+            {similarUsers.map((similarUser) => {
+              const sharedTools = getSharedTools(user.id, similarUser.id);
+              const similarityPercent = Math.round(similarUser.similarity * 100);
+
+              return (
+                <Link
+                  key={similarUser.id}
+                  href={`/${similarUser.username}`}
+                  className="block rounded-lg border border-zinc-200 p-4 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:border-zinc-700 dark:hover:bg-zinc-900"
+                >
+                  <div className="flex items-start gap-3">
+                    {similarUser.avatar_url && (
+                      <img
+                        src={similarUser.avatar_url}
+                        alt={similarUser.username}
+                        className="h-10 w-10 rounded-full"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{similarUser.username}</span>
+                        {!!similarUser.claimed && (
+                          <span title="Verified owner" className="text-blue-500">
+                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path
+                                fillRule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </span>
+                        )}
+                        <span className="text-sm text-zinc-500">
+                          {similarityPercent}% similar
+                        </span>
+                      </div>
+                      <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                        {sharedTools.length} shared tool{sharedTools.length !== 1 ? 's' : ''}:{" "}
+                        {sharedTools.slice(0, 5).map(t => t.name).join(", ")}
+                        {sharedTools.length > 5 && `, +${sharedTools.length - 5} more`}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
